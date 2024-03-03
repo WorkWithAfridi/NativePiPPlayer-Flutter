@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,9 +21,15 @@ class FlutterPipView extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Get.to(
-                  () => const SwiftUIPipView(),
-                );
+                if (Platform.isIOS) {
+                  Get.to(
+                    () => const SwiftUIPipView(),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Native swift code can only be run on iOS devices."),
+                  ));
+                }
               },
               child: const Text('PIP-SWIFTUI'),
             )
