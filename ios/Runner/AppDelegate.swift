@@ -12,12 +12,12 @@ import AVKit
         GeneratedPluginRegistrant.register(with: self)
         
         let audioSession = AVAudioSession.sharedInstance()
-           do {
-               try audioSession.setCategory(.playback)
-               try audioSession.setActive(true, options: [])
-           } catch {
-               print("Setting category to AVAudioSessionCategoryPlayback failed.")
-           }
+        do {
+            try audioSession.setCategory(.playback)
+            try audioSession.setActive(true, options: [])
+        } catch {
+            print("Setting category to AVAudioSessionCategoryPlayback failed.")
+        }
         
         weak var registrar = self.registrar(forPlugin: "plugin-name")
         
