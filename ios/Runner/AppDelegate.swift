@@ -11,6 +11,7 @@ import AVKit
     ) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
         
+        // MARK: - For background setup
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.playback)
@@ -19,6 +20,7 @@ import AVKit
             print("Setting category to AVAudioSessionCategoryPlayback failed.")
         }
         
+        // MARK: - Method channeling setup
         weak var registrar = self.registrar(forPlugin: "plugin-name")
         
         let factory = FLNativeViewFactory(messenger: registrar!.messenger())
@@ -59,6 +61,10 @@ class FLNativeViewFactory: NSObject, FlutterPlatformViewFactory {
 
 class FLNativeView: NSObject, FlutterPlatformView {
     private var _view: UIView
+    private var link: String?
+    private var duration: TimeInterval?
+    private var playbackMode: String?
+    
     
     init(
         frame: CGRect,
@@ -66,6 +72,16 @@ class FLNativeView: NSObject, FlutterPlatformView {
         arguments args: Any?,
         binaryMessenger messenger: FlutterBinaryMessenger?
     ) {
+        // Extracting parameters from Flutter arguments
+        if let params = args as? [String: Any] {
+            link = params["link"] as? String
+            playbackMode = ((params["mode"] ?? "pip") as! String)
+            if let durationMillis = params["duration"] as? Int {
+                duration = TimeInterval(durationMillis) / 1000.0
+            }
+        }
+        
+        
         _view = UIView()
         super.init()
         // iOS views can be created here
@@ -90,7 +106,7 @@ class FLNativeView: NSObject, FlutterPlatformView {
         let keyWindows = UIApplication.shared.windows.first(where: { $0.isKeyWindow}) ?? UIApplication.shared.windows.first
         let topController = keyWindows?.rootViewController
         
-        let vc = UIHostingController(rootView: SwiftUIView())
+        let vc = UIHostingController(rootView: SwiftUIView(link: link, duration: duration, mode: playbackMode))
         let swiftUiView = vc.view!
         swiftUiView.translatesAutoresizingMaskIntoConstraints = false
         

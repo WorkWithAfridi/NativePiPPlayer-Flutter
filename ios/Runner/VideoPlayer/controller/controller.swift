@@ -7,12 +7,18 @@
 
 import Foundation
 import AVKit
+import AVFoundation
 
 class PlayerController: ObservableObject{
     @Published var playbackVideoLink: String = ""
     @Published var playbackTitle: String = ""
     @Published var playbackArtist: String = ""
     @Published var playbackArtwork: String = ""
+    var duration: TimeInterval?
+    @Published var mode: String = ""
+    
+    var alreadySeekedToDuration = false
+    
     
     var player: AVPlayer?
     var avPlayerViewController: AVPlayerViewController = AVPlayerViewController()
@@ -21,18 +27,39 @@ class PlayerController: ObservableObject{
         title: String,
         link: String,
         artist: String,
-        artwork: String){
+        artwork: String,
+        duration: TimeInterval?,
+        playbackMode: String){
             self.playbackTitle = title
             self.playbackArtist = artist
             self.playbackArtwork = artwork
             self.playbackVideoLink = link
+            self.duration = duration
+            
+            self.mode = playbackMode
+            
+            print("mode: \(mode)")
             
             setupPlayer()
             setupAVPlayerViewController()
+            
         }
     
     private func setupPlayer(){
         player = AVPlayer(url: URL(string: playbackVideoLink)!)
+        
+        let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        player!.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main) { [weak self] time in
+            // This block will be called periodically
+            // You can check if the player is playing and trigger your function here
+            if (self?.player?.rate ?? -1) > 0.0 {
+                if self?.alreadySeekedToDuration == false {
+                    self?.alreadySeekedToDuration = true
+                    self?.seekToDuration()
+                }
+                print("Video started playing")
+            }
+        }
         
         let title = AVMutableMetadataItem()
         title.identifier = .commonIdentifierTitle
@@ -61,6 +88,7 @@ class PlayerController: ObservableObject{
         avPlayerViewController.player = player
         avPlayerViewController.allowsPictureInPicturePlayback = true
         avPlayerViewController.canStartPictureInPictureAutomaticallyFromInline = true
+        playPlayer()
     }
     
     func pausePlayer(){
@@ -71,4 +99,12 @@ class PlayerController: ObservableObject{
         player?.play()
     }
     
+    
+    func seekToDuration(){
+        if duration != nil {
+            player?.seek(to:  CMTime(seconds: duration!, preferredTimescale: 1000))
+        } else {
+            print("Duration is nil");
+        }
+    }
 }
