@@ -18,24 +18,40 @@ struct SwiftUIView: View {
     var body: some View {
         VStack(alignment: .center){
             if playerController.mode == "pip" {
-                GeometryReader { geometry in
-                    let parentWidth = geometry.size.width
-                    
+                VStack{
                     if playerController.player == nil {
                         Text("Loading")
                     } else {
                         VideoPlayer(playerController: playerController)
-                            .frame(width: parentWidth)
+                            .padding(.bottom, 10)
+                    }
+                    if playerController.isLoading {
+                        HStack{
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                .padding(.trailing, 10)
+                            Text("Please wait for the video to load, before continuing.")
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal)
+                    } else {
+                        HStack{
+                            Image(systemName: "checkmark")
+                                .padding(.trailing, 10)
+                            Text("Video loaded, you can now continue in Picture-in-picture mode.")
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal)
                     }
                 }
-                .frame(height: 200)
-                .padding(.bottom, 10)
             } else {
                 
             }
         }
         .onAppear {
-            playerController.initPlayer(title: "SomeTitle", link: link ??  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", artist: "Khondakar Afridi", artwork: "Artist", duration: duration, playbackMode: mode ?? "pip")
+            if mode == "pip" {
+                playerController.initPlayer(title: "SomeTitle", link: link ??  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", artist: "Khondakar Afridi", artwork: "Artist", duration: duration, playbackMode: mode ?? "pip")
+            }
         }
     }
 }

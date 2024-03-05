@@ -18,6 +18,7 @@ class PlayerController: ObservableObject{
     @Published var mode: String = ""
     
     var alreadySeekedToDuration = false
+    @Published var isLoading = true
     
     
     var player: AVPlayer?
@@ -35,14 +36,10 @@ class PlayerController: ObservableObject{
             self.playbackArtwork = artwork
             self.playbackVideoLink = link
             self.duration = duration
-            
             self.mode = playbackMode
-            
-            print("mode: \(mode)")
             
             setupPlayer()
             setupAVPlayerViewController()
-            
         }
     
     private func setupPlayer(){
@@ -50,14 +47,12 @@ class PlayerController: ObservableObject{
         
         let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         player!.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main) { [weak self] time in
-            // This block will be called periodically
-            // You can check if the player is playing and trigger your function here
             if (self?.player?.rate ?? -1) > 0.0 {
                 if self?.alreadySeekedToDuration == false {
+                    self?.isLoading = false
                     self?.alreadySeekedToDuration = true
                     self?.seekToDuration()
                 }
-                print("Video started playing")
             }
         }
         
