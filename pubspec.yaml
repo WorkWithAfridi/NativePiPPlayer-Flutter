@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   cupertino_icons: ^1.0.6
+  floating: ^2.0.2
   flutter:
     sdk: flutter
   gap: ^3.0.1
